@@ -6,15 +6,13 @@ import joblib
 
 
 # ======================config==================================
-path_name="insert here"
+picture_file_name="test_house"
 number_of_picture=50
-label="pose name"
-model_name="model name" #config after collect picture
+label="no person"
+model_name="test_sigma" #config after collect picture
 # ==============================================================
 
-# pose = mediapipe.solutions.pose.Pose()
-# hands = mediapipe.solutions.hands.Hands()
-path=f"data/{path_name}.csv"
+path=f"data/{picture_file_name}.csv"
 
 def take_photo(path,frame,label):
     pose_pic = mediapipe.solutions.pose.Pose()
@@ -76,6 +74,7 @@ def train_model(name):
         print(f'Accuracy: {accuracy_score(y_test, y_pred)}')
         if input("Type 1 to save model and 0 to skip:") == "1":
             joblib.dump(model, f'ML-model/{name}.pkl')
+            print("\n\n\nsave complete\n\n\n")
         
 def use_model():
     pass
