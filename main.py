@@ -1,4 +1,4 @@
-import pandas, mediapipe, cv2, numpy
+import pandas, mediapipe, cv2, numpy, time
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
@@ -6,10 +6,10 @@ import joblib
 
 
 # ======================config==================================
-picture_file_name="test_house"
-number_of_picture=50
-label="no person"
-model_name="test_sigma" #config after collect picture
+picture_file_name="01"
+number_of_picture=100
+label="lfive"
+model_name="train" #config after collect picture
 # ==============================================================
 
 path=f"data/{picture_file_name}.csv"
@@ -17,6 +17,7 @@ path=f"data/{picture_file_name}.csv"
 def take_photo(path,frame,label):
     pose_pic = mediapipe.solutions.pose.Pose()
     hands = mediapipe.solutions.hands.Hands()
+    mpdraw = mediapipe.solutions.drawing_utils
     cap = cv2.VideoCapture(0)
     data=[]
     for _ in range(frame):
@@ -35,6 +36,12 @@ def take_photo(path,frame,label):
             for idx, hand_landmarks in enumerate(results_hand.multi_hand_landmarks):
                 handedness = results_hand.multi_handedness[idx].classification[0].label
                 for id, lm in enumerate(hand_landmarks.landmark):
+                    mpdraw.draw_landmark(img, lm,mediapipe.solutions.hands.HAND_CONNECTIONS)
+                    # h,w,_ = img.shape
+                    # cx,cy = int(lm.x*w), int(lm.y*h)
+                    # cv2.circle(img, (cx,cy), 5, (0,0,0), -1)
+                    # cv2.imshow("Cheese",img)
+                    cv2.waitKey(1)
                     if handedness:                        
                         if handedness == "Left" and len(LeftHand) < 42:
                             LeftHand.extend([lm.x,lm.y])
@@ -55,9 +62,14 @@ def take_photo(path,frame,label):
         row.extend(pose)
         row.append(label)    
         data.append(row)
-        
+        # cv2.imshow("Cheese",img)
+        # cv2.waitKey(1)
+        time.sleep(.1)
+    
     df = pandas.DataFrame(data)    
     df.to_csv(path, mode='a', index=False, header=False)
+    cap.release()
+    cv2.destroyAllWindows()
     
 def train_model(name):
     try:
@@ -77,7 +89,6 @@ def train_model(name):
             print("\n\n\nsave complete\n\n\n")
         
 def use_model():
-    pass
     try:
         model = joblib.load(f'ML-model/{model_name}.pkl')
     except:
@@ -85,12 +96,13 @@ def use_model():
     else:
         pose = mediapipe.solutions.pose.Pose()
         hands = mediapipe.solutions.hands.Hands()
+        mpdraw = mediapipe.solutions.drawing_utils
         cap = cv2.VideoCapture(0)
         while True:
             ret, frame = cap.read()
             if not ret:
                 break
-
+            # image = frame
             image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             image = cv2.flip(image, 1)
             results = pose.process(image)
@@ -104,29 +116,36 @@ def use_model():
                 for idx, hand_landmarks in enumerate(results_hand.multi_hand_landmarks):
                     handedness = results_hand.multi_handedness[idx].classification[0].label
                     for id, lm in enumerate(hand_landmarks.landmark):
-                        if handedness:                        
-                            if handedness == "Left" and len(LeftHand) < 42:
-                                LeftHand.extend([lm.x,lm.y])
-                            elif handedness == "Right" and len(RightHand) < 42:
-                                RightHand.extend([lm.x,lm.y])
-            if len(LeftHand) == 0:
-                LeftHand=[0 for n in range(42)]     
-            if len(RightHand) == 0:
-                RightHand=[0 for n in range(42)]     
-            row.extend(LeftHand)
-            row.extend(RightHand)
-            if results.pose_landmarks:
-                landmarks = results.pose_landmarks.landmark
-                for lm in landmarks:
-                    pose_data.extend([lm.x, lm.y, lm.z])
-            if len(pose_data) == 0:
-                pose_data=[0 for n in range(99)]  
-            row.extend(pose_data)        
-            X_input = numpy.array(row).reshape(1, -1)
-            prediction = model.predict(X_input)
-            cv2.putText(frame, f'Pose: {prediction[0]}', (10, 30),cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                        if handedness:                   
 
-            cv2.imshow('Pose Classification', frame)
+                            # h,w,_ = image.shape
+                            # cx,cy = int(lm.x*w), int(lm.y*h)
+                            # cv2.circle(image, (cx, cy), 7, (240, 255, 85), cv2.FILLED)
+
+                            mediapipe.solutions.drawing_utils.draw_landmarks(image,hand_landmarks,mediapipe.solutions.hands.HAND_CONNECTIONS)
+
+            #                 if handedness == "Left" and len(LeftHand) < 42:
+            #                     LeftHand.extend([lm.x,lm.y])
+            #                 elif handedness == "Right" and len(RightHand) < 42:
+            #                     RightHand.extend([lm.x,lm.y])
+            # if len(LeftHand) == 0:
+            #     LeftHand=[0 for n in range(42)]     
+            # if len(RightHand) == 0:
+            #     RightHand=[0 for n in range(42)]     
+            # row.extend(LeftHand)
+            # row.extend(RightHand)
+            # if results.pose_landmarks:
+            #     landmarks = results.pose_landmarks.landmark
+            #     for lm in landmarks:
+            #         pose_data.extend([lm.x, lm.y, lm.z])
+            # if len(pose_data) == 0:
+            #     pose_data=[0 for n in range(99)]  
+            # row.extend(pose_data)        
+            # X_input = numpy.array(row).reshape(1, -1)
+            # prediction = model.predict(X_input)
+            # cv2.putText(image, f'Pose: {prediction[0]}', (10, 30),cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            cv2.imshow('Pose Classification', image)
             if cv2.waitKey(10) & 0xFF == ord('q'):
                 break
 
