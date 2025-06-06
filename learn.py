@@ -1,30 +1,41 @@
-import cv2
-from cvzone.HandTrackingModule import HandDetector
-import numpy as np
-import math
-import time
-import mediapipe
+# import random,numpy,sklearn
+# import sklearn.preprocessing
+# samples = []
+# labels = []
+# for i in range(5):
+#     young = random.randint(13, 64)
+#     samples.append(young)
+#     labels.append(1)
+# for i in range(5):
+#     old = random.randint(65, 100)
+#     samples.append(old)
+#     labels.append(0)
+# for i in range(100):
+#     young = random.randint(13, 64)
+#     samples.append(young)
+#     labels.append(0)
+# for i in range(100):
+#     old = random.randint(65, 100)
+#     samples.append(old)
+#     labels.append(1)
 
-hands = mediapipe.solutions.hands.Hands()
+# train_samples = numpy.array(samples)
+# train_labels = numpy.array(labels)
+# suff = numpy.random.permutation(len(train_labels))
+# train_labels, train_samples = train_labels[suff], train_samples[suff]
 
-cap = cv2.VideoCapture(0)
-detector = HandDetector(maxHands=2)
-while True:
-    success, img = cap.read()
-    # hands, img = detector.findHands(img)
-    img = cv2.flip(img, 1)
-    result_hands = hands.process(img)
+# scaler = sklearn.preprocessing.MinMaxScaler(feature_range=(0,1))
+# scaled_train_samples = scaler.fit_transform(train_samples.reshape(-1,1))
 
-    if result_hands:
-        print(result_hands.multi_hand_landmarks)
-        # print(hands[0]["lmList"][0],"\n\n")
-        # cv2.circle(img, hands[0]["lmList"][0][0:2], 0, (0,0,0), 10)
-    # print(img)
+print("Starting...")
+import tensorflow
+from tensorflow.keras.layers import Dense, Activation
+from tensorflow.keras.optimizers import Adam
+# from tensorflow.keras.metrics import catagorical_crossentropy
 
-    cv2.imshow("Image", img)
-    key = cv2.waitKey(1)
-    if key == ord("q"):
-        break
-    time.sleep(.5)
-cap.release
-cv2.destroyAllWindows
+model = tensorflow.keras.models.Sequential([
+    Dense(units=16, input_shape=(1,), activation="relu"),
+    Dense(units=32, activation="relu"),
+    Dense(units=2, activation="softmax")
+])
+print("It work!")
