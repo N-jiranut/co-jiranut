@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.utils import to_categorical
@@ -32,12 +33,20 @@ model = Sequential([
 
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
-model.fit(X_train, y_train, epochs=30, batch_size=32, validation_data=(X_test, y_test))
+history = model.fit(X_train, y_train, epochs=30, batch_size=32, validation_data=(X_test, y_test))
 
-model.save("ML-model/keras_model.h5")
+# model.save("ML-model/test_model.h5")
 
-with open("ML-model/labels.txt", "w") as f:
-    for label in le.classes_:
-        f.write(str(label) + "\n")
+# with open("ML-model/labels_test.txt", "w") as f:
+#     for label in le.classes_:
+#         f.write(str(label) + "\n")
 
-
+plt.plot(history.history['loss'], label='Training Loss')
+plt.plot(history.history['val_loss'], label='Validation Loss')
+plt.title("Loss Over Epochs")
+plt.xlabel("Epoch")
+plt.ylabel("Loss")
+plt.legend()
+plt.grid(True)
+plt.savefig("keras_loss_plot.png")
+plt.show()
