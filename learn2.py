@@ -57,7 +57,7 @@ with open("ML-model/labels.txt", "r") as f:
     
 #     cv2.imshow("Cheese",img)
 #     cv2.waitKey(1)
-    # time.sleep(.1)
+#     time.sleep(.1)
 
 # cap.release()
 # cv2.destroyAllWindows()
