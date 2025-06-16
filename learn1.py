@@ -9,8 +9,8 @@ from tensorflow.keras.utils import to_categorical
 df = pd.read_csv("data/gpt_maindata_max.csv")
 
 # Split features and labels
-X = df.iloc[:, :-1].values  # All columns except last (landmarks)
-y = df.iloc[:, -1].values   # Last column (label)
+X = df.iloc[:, :-1].values
+y = df.iloc[:, -1].values  
 
 # Encode labels
 le = LabelEncoder()
@@ -22,7 +22,14 @@ X_train, X_test, y_train, y_test = train_test_split(X, y_categorical, test_size=
 
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout
+from tensorflow.keras.callbacks import EarlyStopping
 
+early_stop = EarlyStopping(
+    monitor='val_loss',
+    patience=3,
+    restore_best_weights=True
+)
+    # Dropout(0.3),
 model = Sequential([
     Dense(128, activation='relu', input_shape=(X.shape[1],)),
     Dropout(0.3),
@@ -33,13 +40,14 @@ model = Sequential([
 
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
-history = model.fit(X_train, y_train, epochs=30, batch_size=32, validation_data=(X_test, y_test))
+history = model.fit(X_train, y_train, epochs=100, batch_size=32, validation_data=(X_test, y_test), callbacks=[early_stop])
+# , callbacks=[early_stop]
 
-# model.save("ML-model/test_model.h5")
+model.save("ML-model/6-15-2025-model01.h5")
 
-# with open("ML-model/labels_test.txt", "w") as f:
-#     for label in le.classes_:
-#         f.write(str(label) + "\n")
+with open("ML-model/6-15-2025-label01.txt", "w") as f:
+    for label in le.classes_:
+        f.write(str(label) + "\n")
 
 plt.plot(history.history['loss'], label='Training Loss')
 plt.plot(history.history['val_loss'], label='Validation Loss')
