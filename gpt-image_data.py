@@ -2,15 +2,21 @@ import cv2,pandas,numpy
 
 cap = cv2.VideoCapture(0)
 
-pic = 20
+while True:
 
-img = cap.read()
+    ret, img = cap.read()
+    
+    cv2.putText(img, "Hello!", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
-# n = numpy.array(img)
 
-print(img[1])
-
-# for i in range(pic):
-#     img = cap.read()
-#     print(img.shape)
+    cv2.imshow("test",img)
+    resized = cv2.resize(img, (480, 240))
+    cv2.imshow("tests",resized)
+    
+    key = cv2.waitKey(1)
+    cv2.imshow("test",img)
+    if key == ord("q"):
+        break
 print("end")
+cv2.destroyAllWindows
+cap.release
