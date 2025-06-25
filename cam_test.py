@@ -12,9 +12,10 @@ while True:
 
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     image = cv2.flip(image,1)
-    results_hands = hands.process(image)
     results_pose = pose.process(image)
+    results_hands = hands.process(image)
 
+    print(results_hands.multi_hand_landmarks)
     if results_hands.multi_hand_landmarks:
         for idx, hand_landmarks in enumerate(results_hands.multi_hand_landmarks):
             handedness = results_hands.multi_handedness[idx].classification[0].label

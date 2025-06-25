@@ -1,15 +1,18 @@
-import cv2, mediapipe
+import cv2, mediapipe, glob, pandas
+
+name="test"
+
+file = glob.glob('C:/Users/Thinkpad/Documents/co-jiranut/for-Jak/current_picture/*.jpg')
 
 pose_pic = mediapipe.solutions.pose.Pose()
 hands = mediapipe.solutions.hands.Hands()
 mpdraw = mediapipe.solutions.drawing_utils
-cap = cv2.VideoCapture(0)
+# cap = cv2.VideoCapture(0)
 
-for pic in range(frame):
-    ret, img = cap.read()
-    if not ret:
-        print("cant find camera")
-        break
+data=[]
+
+for pic in file:
+    img = cv2.imread(pic)
     img = cv2.flip(img, 1)       
     results_pose = pose_pic.process(img)
     results_hand = hands.process(img)
@@ -40,3 +43,7 @@ for pic in range(frame):
     if len(pose) == 0:
         pose=[0 for n in range(99)]  
     row.extend(pose) 
+    data.append(row)
+df = pandas.DataFrame(data)
+
+df.to_csv(f"C:/Users/Thinkpad/Documents/co-jiranut/for-Jak/csv_file/test-{name}.csv",index = False)

@@ -7,6 +7,7 @@ current_time = 0
 n=0
 now=0
 work = False
+prepare = False
 
 frame = 100
 
@@ -27,30 +28,34 @@ while True:
             mpdraw.draw_landmarks(img, handLms, mediapipe.solutions.hands.HAND_CONNECTIONS)
             
     if work == True:
-        print(n)
-        # path = f'current_picture/captured_image{n}.jpg'
-        # cv2.imwrite(f'current_picture/captured_image{n}.jpg', img, [cv2.IMWRITE_JPEG_QUALITY, 20])
-        cv2.imwrite(f'current_picture/image{n}.jpg', img)
+        print(f"pic-{n-20}")
+        cv2.imwrite(f'C:/Users/Thinkpad/Documents/co-jiranut/for-Jak/current_picture/image{n}.jpg', img)
     
     key = cv2.waitKey(1)
 
     if key == ord("s") and work == False:
         print('starting')
         n=0
-        work = True
+        prepare = True
         now = current_time
 
-    if current_time-now==100:
+    if prepare == True and n==0:
+        print("Ready!")
+    if prepare == True and n ==20:
+        print("Cupturing...")
+        work=True
+        prepare=False
+
+    if current_time-now==frame+20:
         work = False
         print("end")
 
-    if key == ord("q"):
+    if key == ord("q") and work == False:
         break
         
     n+=1
 
     cv2.imshow("Sample",img)
-    # time.sleep(.1)
 
 cap.release()
 cv2.destroyAllWindows()

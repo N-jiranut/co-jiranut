@@ -5,6 +5,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.utils import to_categorical
 
+date="6/17/2025"
+name="test"
+
 # Load your CSV
 df = pd.read_csv("data/gpt_maindata_max.csv")
 
@@ -43,9 +46,9 @@ model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accur
 history = model.fit(X_train, y_train, epochs=100, batch_size=32, validation_data=(X_test, y_test), callbacks=[early_stop])
 # , callbacks=[early_stop]
 
-model.save("ML-model/6-15-2025-model01.h5")
+model.save(f"ML-model/{date}-{name}.h5")
 
-with open("ML-model/6-15-2025-label01.txt", "w") as f:
+with open(f"ML-model/{date}-{name}.txt", "w") as f:
     for label in le.classes_:
         f.write(str(label) + "\n")
 
