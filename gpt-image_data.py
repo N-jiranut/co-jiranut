@@ -1,22 +1,24 @@
-import cv2,pandas,numpy
+import cv2,time
 
 cap = cv2.VideoCapture(0)
 
-while True:
+classs = ["zero","two","five"]
 
-    ret, img = cap.read()
-    
-    cv2.putText(img, "Hello!", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+for loop in range(3):
+    print(f"Round {loop+1}")
+    print(classs[loop])
+    while True:
+        ret, img = cap.read()   
+        cv2.imshow("test",img)
+        
+        key = cv2.waitKey(1)
+        if key == ord("s"):
+            print("yes")
+            for i in range(20):
+                cv2.imwrite(f"gpt-image/{classs[loop]}/image{i}.jpg", img)
+            print("Success")
+            break
 
-
-    cv2.imshow("test",img)
-    resized = cv2.resize(img, (480, 240))
-    cv2.imshow("tests",resized)
-    
-    key = cv2.waitKey(1)
-    cv2.imshow("test",img)
-    if key == ord("q"):
-        break
 print("end")
 cv2.destroyAllWindows
 cap.release

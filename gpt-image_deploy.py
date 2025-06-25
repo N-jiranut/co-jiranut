@@ -4,8 +4,8 @@
 # test = numpy.array(test)
 # A = test.astype('float32') /255
 # print(A)
-test = "test.kt"
-with open(test) as file:
+# test = "test.kt"
+with open("gpt-image/zero/image0.jpg") as file:
     data= file.read()
     print("VVV")
     print(data)
