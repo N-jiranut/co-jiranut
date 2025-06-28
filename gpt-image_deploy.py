@@ -1,11 +1,28 @@
-# import numpy
-# test = [1,2,3,4,5,6]
-# # test = 5.0
-# test = numpy.array(test)
-# A = test.astype('float32') /255
-# print(A)
-# test = "test.kt"
-with open("gpt-image/zero/image0.jpg") as file:
-    data= file.read()
-    print("VVV")
-    print(data)
+import cv2, numpy
+from tensorflow.keras.models import load_model
+
+n = 0
+cn = 0
+
+model = load_model("gpt_model/school_cnn_model.h5")
+
+cap = cv2.VideoCapture(0)
+
+while True:
+    ret, image = cap.read()
+
+    # img = cv2.resize(image, (128,128))
+
+    cv2.imshow("HI",image)
+    
+    if n-cn==20:
+        print("ok")
+        cn=n
+
+    key = cv2.waitKey(1)
+    if key == ord("q"):
+        break
+    n+=1
+
+cv2.destroyAllWindows
+cap.release
