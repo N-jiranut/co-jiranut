@@ -139,3 +139,4 @@ plt.show()
 choice = input("Wanna save? >:")
 if choice == "0":
     model.save("gpt_model/school_cnn_model.h5")
+    print("Save complete")
