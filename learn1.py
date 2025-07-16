@@ -1,38 +1,60 @@
-import cv2
+from keras.models import load_model  # TensorFlow is required for Keras to work
+import cv2  # Install opencv-python
+import numpy as np
 import mediapipe as mp
+# Disable scientific notation for clarity
+np.set_printoptions(suppress=True)
 
-cap = cv2.VideoCapture(0)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 400)  # Height
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, 400)   # Width
+# Load the model
+model = load_model("teachable_machine/converted_keras/keras_Model.h5", compile=False)
+# Load the labels
+class_names = open("teachable_machine/converted_keras/labels.txt", "r").readlines()
 
-a = 2000
+# CAMERA can be 0 or 1 based on default camera of your computer
+camera = cv2.VideoCapture(0)
+hands = mp.solutions.hands.Hands()
 
-mp_hands = mp.solutions.hands
-hands = mp_hands.Hands(static_image_mode=True, max_num_hands=1)
 while True:
-    ret, image = cap.read()
-    if not ret:
-        break
-    
-    
-    # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    # results = hands.process(image)
-    # if results.multi_hand_landmarks:
-    #     for hand_landmarks in results.multi_hand_landmarks:
-    #         image_height, image_width, _ = image.shape
-    #         x_coords = [landmark.x for landmark in hand_landmarks.landmark]
-    #         y_coords = [landmark.y for landmark in hand_landmarks.landmark]
-    #         x_min = int(min(x_coords) * image_width)
-    #         x_max = int(max(x_coords) * image_width)
-    #         y_min = int(min(y_coords) * image_height)
-    #         y_max = int(max(y_coords) * image_height)
-    #         image = image[y_min:y_max, x_min:x_max]
+    # Grab the webcamera's image.
 
-    # print(image.shape)
-    image1 = image[100:a, 100:200]
-    cv2.imshow('Cropped Hand', image)
-    cv2.imshow('image', image1)
-    if cv2.waitKey(1) == ord("q"):
+    black_screen = np.zeros((224, 224, 3), dtype=np.uint8)
+    ret, img = camera.read()
+    if not ret:
+        print("Cam not found.")
         break
+    img = cv2.flip(img, 1)
+    img = cv2.cvtColor(img,cv2.COLOR_RGB2BGR)
+    hand_result = hands.process(img)
+    
+    if hand_result.multi_hand_landmarks:
+        for idx, hand_landmarks in enumerate(hand_result.multi_hand_landmarks):
+            handedness = hand_result.multi_handedness[idx].classification[0].label
+            if handedness == "Right":
+                for id, lm in enumerate(hand_landmarks.landmark):                     
+                    mp.solutions.drawing_utils.draw_landmarks(black_screen,hand_landmarks,mp.solutions.hands.HAND_CONNECTIONS)
+        cv2.imshow("canvas", black_screen)
+    # Make the image a numpy array and reshape it to the models input shape.
+    image = np.asarray(image, dtype=np.float32).reshape(1, 224, 224, 3)
+
+    # Normalize the image array
+    image = (image / 127.5) - 1
+
+    # Predicts the model
+    prediction = model.predict(image)
+    index = np.argmax(prediction)
+    class_name = class_names[index]
+    confidence_score = prediction[0][index]
+
+    # Print prediction and confidence score
+    print("Class:", class_name[2:], end="")
+    print("Confidence Score:", str(np.round(confidence_score * 100))[:-2], "%")
+
+    # Listen to the keyboard for presses.
+    keyboard_input = cv2.waitKey(1)
+
+    # 27 is the ASCII for the esc key on your keyboard.
+    if keyboard_input == 27:
+        break
+
+camera.release()
 cv2.destroyAllWindows()
-cap.release   
